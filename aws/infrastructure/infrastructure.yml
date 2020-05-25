@@ -1,0 +1,149 @@
+Description: >
+  Aamir Pinger / Udacity - Project Capstone
+  Deploy Appclication on EKS Cluster
+
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resources
+    Type: String
+  VpcCIDR:
+    Description: CIDR for the VPC
+    Type: String
+    Default: 10.0.0.0/16
+  Subnet1CIDR:
+    Description: CIDR for subnet 1
+    Type: String
+  Subnet2CIDR:
+    Description: CIDR for subnet 2
+    Type: String
+  Subnet3CIDR:
+    Description: CIDR for subnet 3
+    Type: String
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+
+  Subnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs '']
+      CidrBlock: !Ref Subnet1CIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet 1 (AZ1)
+
+  Subnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, !GetAZs '']
+      CidrBlock: !Ref Subnet2CIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet 2 (AZ2)
+
+  Subnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs '']
+      CidrBlock: !Ref Subnet3CIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet 3 (AZ1)
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Routes
+
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0 # This is like a wildcard, means all addresses
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssociation: # This specifies to which subnet this rule applies, we could have a lot of subnets.
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref Subnet1
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref Subnet2
+
+  PublicSubnet3RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref Subnet3
+  DefaultSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref VPC
+      GroupDescription: Default security group for EKS.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 1025
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 1025
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+
+# This declares what our cloudformation script outputs, so it can be imported and used in other scripts.
+Outputs:
+  VpcId:
+    Description: The VPC id.
+    Value: !Ref VPC
+    Export:
+      Name: !Sub ${EnvironmentName}-VPCID
+  SubnetIds:
+    Description: The subnet ids.
+    Value: !Join [',', [!Ref Subnet1, !Ref Subnet2, !Ref Subnet3]]
+    Export:
+      Name: !Sub ${EnvironmentName}-SBN-IDS
+  SecurityGroup:
+    Description: Cluster security group.
+    Value: !Ref DefaultSecurityGroup
+    Export:
+      Name: !Sub ${EnvironmentName}-SCG

@@ -1,0 +1,30 @@
+Description: >
+  Capstone project for Cloud DevOps Engineering Nanodegree
+  Author - Aamir Pinger
+  Creating the EKS cluster.
+
+Parameters:
+  EnvironmentName:
+    Description: An Environment name that will be prefixed to resources
+    Type: String
+
+Resources:
+  CapstoneEKSUdacity:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Version: '1.14'
+      RoleArn: arn:aws:iam::981367965409:role/eks-role
+      ResourcesVpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub '${EnvironmentName}-SCG'
+        SubnetIds:
+          Fn::Split:
+            - ','
+            - Fn::ImportValue:
+                Fn::Sub: ${EnvironmentName}-SBN-IDS
+Outputs:
+  EksId:
+    Description: The EKS id.
+    Value: !Ref CapstoneEKSUdacity
+    Export:
+      Name: !Sub ${EnvironmentName}-EKS

@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: capstone-app
+  labels:
+    app: capstone-app
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: capstone-app
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: capstone-app
+    spec:
+      containers:
+        - image: aamirpinger/udacity-capstone-html:latest
+          imagePullPolicy: Always
+          name: capstone-app
+          ports:
+            - containerPort: 80
+              protocol: TCP
