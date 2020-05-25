@@ -12,6 +12,7 @@ node {
     }
     stage("Linting") {
       echo 'Linting...'
+      sh 'docker ps'
       sh 'docker run --rm -i hadolint/hadolint < Dockerfile'
     }
     stage('Building image') {
