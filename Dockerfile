@@ -3,11 +3,7 @@ FROM node:13.14 as build
 
 WORKDIR /app
 
-COPY helloworld-app/. ./
-
-RUN pwd
-
-RUN ls
+COPY helloworld-app/. .
 
 RUN npm install
 
