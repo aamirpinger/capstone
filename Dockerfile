@@ -1,9 +1,13 @@
 # Stage 1 - build project
 FROM node:10 as build
 
-RUN cd /app
+WORKDIR /app
 
-COPY helloworld/. .
+COPY helloworld-app/. ./
+
+RUN pwd
+
+RUN ls
 
 RUN npm install
 
