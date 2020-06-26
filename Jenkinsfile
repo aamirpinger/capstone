@@ -31,12 +31,10 @@ node {
             sh "aws eks --region us-west-2 update-kubeconfig --name CapstoneEKSUdacity-0TtoHmzFVWVJ"
             sh "kubectl get nodes"
             sh "kubectl get pods"
-            sh "kubectl apply -f aws/kube/aws-auth-cm.yaml"
-            sh "kubectl apply -f aws/kube/depl.yaml"
-            sh "kubectl apply -f aws/kube/lb.yaml"
+            sh "kubectl set image deployments/capstone-app capstone-app=${registry}:latest --record"
             sh "kubectl get nodes"
             sh "kubectl get pods"
+            }
         }
-}
-}
+    }
 }
