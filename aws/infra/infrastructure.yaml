@@ -1,7 +1,6 @@
 Description: >
   Aamir Pinger / Udacity - Project Capstone
   Deploy Appclication on EKS Cluster
-
 Parameters:
   EnvironmentName:
     Description: An environment name that will be prefixed to resources

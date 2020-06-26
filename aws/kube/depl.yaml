@@ -11,6 +11,9 @@ spec:
     matchLabels:
       app: capstone-app
   strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
     type: RollingUpdate
   template:
     metadata:
@@ -18,7 +21,7 @@ spec:
         app: capstone-app
     spec:
       containers:
-        - image: aamirpinger/udacity-capstone-html:latest
+        - image: aamirpinger/udacity-project-capstone:latest
           imagePullPolicy: Always
           name: capstone-app
           ports:

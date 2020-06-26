@@ -5,7 +5,7 @@
   },
   {
     "ParameterKey": "SshKey",
-    "ParameterValue": "capstone-eks"
+    "ParameterValue": "udacity"
   },
   {
     "ParameterKey": "DesiredInstances",

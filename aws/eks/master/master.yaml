@@ -2,7 +2,6 @@ Description: >
   Capstone project for Cloud DevOps Engineering Nanodegree
   Author - Aamir Pinger
   Creating the EKS cluster.
-
 Parameters:
   EnvironmentName:
     Description: An Environment name that will be prefixed to resources

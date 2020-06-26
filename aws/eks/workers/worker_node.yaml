@@ -12,11 +12,6 @@ Parameters:
   DesiredInstances:
     Description: How many instances should be created.
     Type: Number
-  LatestAmiId:
-    Description: Get the latest Amazon Linux AMI.
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
-    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
-
 Resources:
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -24,6 +19,7 @@ Resources:
       Path: '/'
       Roles:
         - !Ref InstanceRole
+
   InstanceRole:
     Type: AWS::IAM::Role
     Properties:
@@ -41,6 +37,7 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
         - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
         - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+
   NodesSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -79,6 +76,7 @@ Resources:
             - EksId:
                 Fn::ImportValue: !Sub '${EnvironmentName}-EKS'
           Value: 'owned'
+
   NodesAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -114,7 +112,9 @@ Resources:
     Properties:
       AssociatePublicIpAddress: 'true'
       IamInstanceProfile: !Ref InstanceProfile
-      ImageId: ami-086b16d6badeb5716
+      #ImageId: ami-0722493f75c013523 # Ubuntu Linux
+      ImageId: ami-0c13bb9cbfd007e56 # amazon-linux-2
+      #ImageID: ami-03086423d09685de3
       InstanceType: t2.medium
       KeyName: !Ref SshKey
       SecurityGroups:
